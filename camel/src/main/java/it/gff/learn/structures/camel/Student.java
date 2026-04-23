@@ -1,11 +1,9 @@
 package it.gff.learn.structures.camel;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.TableGenerator;
-import org.springframework.hateoas.RepresentationModel;
 
 @Entity // Entity means that this class must be threatened as a relational entity.
 @TableGenerator( name = "Students" ) // This is used by the ORM to link this Entity in a DBMS Table.
