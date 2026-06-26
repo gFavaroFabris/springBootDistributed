@@ -1,8 +1,0 @@
-plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-}
-rootProject.name = 'springDistributedArchitecture'
-
-include 'gatewayService'
-include 'beService'
-include 'webapp'

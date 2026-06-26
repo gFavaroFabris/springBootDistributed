@@ -8,9 +8,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/beService" />
-            <option value="$PROJECT_DIR$/gatewayService" />
-            <option value="$PROJECT_DIR$/webapp" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="true" />
