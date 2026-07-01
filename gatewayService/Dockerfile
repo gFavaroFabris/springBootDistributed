@@ -1,14 +1,14 @@
-FROM gradle:8.14.0-jdk21 AS build
+FROM gradle:jdk21 AS build
 WORKDIR /workspace
 
-COPY . ./
-
-RUN gradle :gatewayService:bootJar --no-daemon
+COPY . .
+RUN gradle clean
+RUN gradle :bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-COPY --from=build /workspace/gatewayService/build/libs/*.jar /app/app.jar
+COPY --from=build /workspace/build/libs/*.jar /app/app.jar
 
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
