@@ -1,23 +1,50 @@
 services:
-  web:
-    build: ./webapp
+  webapp:
+    image: springbootdistributed-webapp
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - students_db
+
+  camel:
+    image: springbootdistributed-camel
+    build:
+      context: ./camel
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "8080:8080"
     depends_on:
       - students_db
-
-  camel:
-    build: ./camel
-    restart: always
-    ports:
-      - "8081:8080"
-    depends_on:
-      - students_db
-#      - studentsftp
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://students_db:3306/studentsapp?createDatabaseIfNotExist=true
       - CAMEL_FTP_URI=ftp://studentsapp@studentsftp:21/students/export?password=stUd3nts@pp&passiveMode=true
+
+  beservice:
+    image: springbootdistributed-beservice
+    build:
+      context: ./beService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - students_db
+
+  gatewayservice:
+    image: springbootdistributed-gatewayservice
+    build:
+      context: ./gatewayService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8083:8081"
+    depends_on:
+      - students_db
 
 #  studentsftp:
 #    volumes:
