@@ -1,4 +1,9 @@
 services:
+  webapp:
+    image: springbootdistributed-webapp
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
 
   kafka:
     image: bitnami/kafka:latest
@@ -20,7 +25,7 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
       #What it does: Maps the names we invented (like CONTROLLER) to a security protocol (plain text, no SSL).
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      -
+      
   bankDb:
     image: postgres:15-alpine
     restart: always
@@ -64,6 +69,7 @@ services:
     image: distributed/cashcard:1.0
     restart: always
     ports:
+      - "8081:8081"
       - "8080:8090"
     environment:
       - JWT_SECRET = "AAAAAg_P)g%a.}X8rYpM~32qt-Zoei:w*kAnrix5)kyou!*g46x]Dkh?qTB9RDVA2"
@@ -82,16 +88,65 @@ services:
         condition: service_healthy
 
   camel:
-    build: ./camel
+    image: springbootdistributed-camel
+    build:
+      context: ./camel
+      dockerfile: Dockerfile
     restart: always
     ports:
-      - "8081:8080"
+      - "8080:8080"
     depends_on:
       - students_db
-      - studentsftp
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://students_db:3306/studentsapp?createDatabaseIfNotExist=true
       - CAMEL_FTP_URI=ftp://studentsapp@studentsftp:21/students/export?password=stUd3nts@pp&passiveMode=true
+
+  beservice:
+    image: springbootdistributed-beservice
+    build:
+      context: ./beService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - students_db
+
+  gatewayservice:
+    image: springbootdistributed-gatewayservice
+    build:
+      context: ./gatewayService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8083:8081"
+    depends_on:
+      - students_db
+
+#  studentsftp:
+#    volumes:
+#      - students-ftp:/ftp/studentsapp
+#    image: "delfer/alpine-ftp-server"
+#    ports:
+#      - "21:21"
+#      - "21000-21010:21000-21010"
+#    environment:
+#      - USERS=studentsapp|stUd3nts@pp
+
+  students_db:
+    volumes:
+      - students-db:/var/lib/mysql
+    image: "mysql:5.7"
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   students-ftp:
