@@ -1,48 +1,136 @@
 services:
-  web:
-    build: ./webapp
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - students_db
+  webapp:
+    image: springbootdistributed-webapp
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
 
-  camel:
-    build: ./camel
-    restart: always
+  kafka:
+    image: bitnami/kafka:latest
     ports:
-      - "8081:8080"
-    depends_on:
-      - students_db
-      - studentsftp
+      - "9092:9092"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://students_db:3306/studentsapp?createDatabaseIfNotExist=true
-      - CAMEL_FTP_URI=ftp://studentsapp@studentsftp:21/students/export?password=stUd3nts@pp&passiveMode=true
-
-  studentsftp:
+      #A unique ID for the node. In a local setup, this is always
+      - KAFKA_CFG_NODE_ID=1
+      #Tells this container to act as both the database for messages and the manager of the cluster.
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      #Tells Kafka which ports to listen on.
+      # 9092 is for your Spring app;
+      # 9093 is for internal KRaft communication
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      #What it does: Crucial. This is the address Kafka sends back to your Spring app.
+      #If your app is running on your host machine, it must be localhost:9092.
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      #Needed for the "Self-Management" (KRaft).
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      #What it does: Maps the names we invented (like CONTROLLER) to a security protocol (plain text, no SSL).
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      
+  bankDb:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=bankDB
+    ports:
+      - "5433:5432"
     volumes:
-      - students-ftp:/ftp/studentsapp
-    image: "delfer/alpine-ftp-server"
-    ports:
-      - "21:21"
-      - "21000-21010:21000-21010"
-    environment:
-      - USERS=studentsapp|stUd3nts@pp
-
-  students_db:
-    volumes:
-      - students-db:/var/lib/mysql
-    image: "mysql:5.7"
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=secret_password
+      - bankDB_data:/var/lib/postgresql/data
+      #- ./docs/data/administration:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d bankDB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  cashCard:
+    build:
+      context: ./cashCard
+      dockerfile: Dockerfile
+    image: distributed/cashcard:1.0
+    restart: always
+    ports:
+      - "8081:8081"
+      - "8080:8090"
+    environment:
+      - JWT_SECRET="AAAAAg_P)g%a.}X8rYpM~32qt-Zoei:w*kAnrix5)kyou!*g46x]Dkh?qTB9RDVA2"
+      - KAFKA_SERVERS=kafka:9092 # Overrides localhost
+      - CONSUMER_GROUP=orders-v1
+      - BANK_DB=jdbc:postgresql://centralDB:5432/bankDB
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      kafka :
+        condition: service_healthy
+      bankDb :
+        condition: service_healthy
+
+  # camel:
+  #   image: springbootdistributed-camel
+  #   build:
+  #     context: ./camel
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - students_db
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:mysql://cashCard:5433/studentsapp?createDatabaseIfNotExist=true
+  #     - CAMEL_FTP_URI=ftp://studentsapp@studentsftp:21/students/export?password=stUd3nts@pp&passiveMode=true
+
+  beservice:
+    image: springbootdistributed-beservice
+    build:
+      context: ./beService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - bankDb
+
+  gatewayservice:
+    image: springbootdistributed-gatewayservice
+    build:
+      context: ./gatewayService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8083:8081"
+    depends_on:
+      - bankDb
+
+#  studentsftp:
+#    volumes:
+#      - students-ftp:/ftp/studentsapp
+#    image: "delfer/alpine-ftp-server"
+#    ports:
+#      - "21:21"
+#      - "21000-21010:21000-21010"
+#    environment:
+#      - USERS=studentsapp|stUd3nts@pp
+
+# students_db:
+#   volumes:
+#     - students-db:/var/lib/mysql
+#   image: "mysql:5.7"
+#   restart: always
+#   ports:
+#     - "3306:3306"
+#   environment:
+#     - MYSQL_ROOT_PASSWORD=secret_password
+#   healthcheck:
+#     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#     interval: 30s
+#     timeout: 10s
+#     retries: 3
 
 volumes:
+  students-ftp:
   students-db:
+  bankDB_data:
