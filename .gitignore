@@ -42,3 +42,7 @@ webapp/.classpath
 webapp/.settings/org.eclipse.jdt.core.prefs
 webapp/build/classes/java/main/it/gff/learn/structures/webapp/WebappApplication.class
 webapp/build/classes/java/test/it/gff/learn/structures/webapp/WebappApplicationTests.class
+/bin
+/.metadata
+/.sonarlint
+/gradle

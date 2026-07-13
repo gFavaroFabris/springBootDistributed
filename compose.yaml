@@ -44,24 +44,6 @@ services:
       timeout: 5s
       retries: 5
 
-  cashCardDb:
-    image: postgres:15-alpine
-    restart: always
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_DB=cashCardDB
-    ports:
-      - "5433:5432"
-    volumes:
-      - cashCardDB_data:/var/lib/postgresql/data
-      #- ./docs/data/administration:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d bankDB" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   cashCard:
     build:
       context: ./cashCard
@@ -72,10 +54,10 @@ services:
       - "8081:8081"
       - "8080:8090"
     environment:
-      - JWT_SECRET = "AAAAAg_P)g%a.}X8rYpM~32qt-Zoei:w*kAnrix5)kyou!*g46x]Dkh?qTB9RDVA2"
+      - JWT_SECRET="AAAAAg_P)g%a.}X8rYpM~32qt-Zoei:w*kAnrix5)kyou!*g46x]Dkh?qTB9RDVA2"
       - KAFKA_SERVERS=kafka:9092 # Overrides localhost
       - CONSUMER_GROUP=orders-v1
-      - BANK_DB = jdbc:postgresql://centralDB:5432/racemaster_DB
+      - BANK_DB=jdbc:postgresql://centralDB:5432/bankDB
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 30s
@@ -84,22 +66,22 @@ services:
     depends_on:
       kafka :
         condition: service_healthy
-      cashCardDB :
+      bankDb :
         condition: service_healthy
 
-  camel:
-    image: springbootdistributed-camel
-    build:
-      context: ./camel
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - students_db
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://students_db:3306/studentsapp?createDatabaseIfNotExist=true
-      - CAMEL_FTP_URI=ftp://studentsapp@studentsftp:21/students/export?password=stUd3nts@pp&passiveMode=true
+  # camel:
+  #   image: springbootdistributed-camel
+  #   build:
+  #     context: ./camel
+  #     dockerfile: Dockerfile
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - students_db
+  #   environment:
+  #     - SPRING_DATASOURCE_URL=jdbc:mysql://cashCard:5433/studentsapp?createDatabaseIfNotExist=true
+  #     - CAMEL_FTP_URI=ftp://studentsapp@studentsftp:21/students/export?password=stUd3nts@pp&passiveMode=true
 
   beservice:
     image: springbootdistributed-beservice
@@ -110,7 +92,7 @@ services:
     ports:
       - "8082:8082"
     depends_on:
-      - students_db
+      - bankDb
 
   gatewayservice:
     image: springbootdistributed-gatewayservice
@@ -121,7 +103,7 @@ services:
     ports:
       - "8083:8081"
     depends_on:
-      - students_db
+      - bankDb
 
 #  studentsftp:
 #    volumes:
@@ -133,21 +115,22 @@ services:
 #    environment:
 #      - USERS=studentsapp|stUd3nts@pp
 
-  students_db:
-    volumes:
-      - students-db:/var/lib/mysql
-    image: "mysql:5.7"
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=secret_password
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+# students_db:
+#   volumes:
+#     - students-db:/var/lib/mysql
+#   image: "mysql:5.7"
+#   restart: always
+#   ports:
+#     - "3306:3306"
+#   environment:
+#     - MYSQL_ROOT_PASSWORD=secret_password
+#   healthcheck:
+#     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#     interval: 30s
+#     timeout: 10s
+#     retries: 3
 
 volumes:
   students-ftp:
   students-db:
+  bankDB_data:
