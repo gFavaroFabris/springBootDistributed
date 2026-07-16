@@ -13,7 +13,7 @@ import lombok.ToString;
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor
 @ToString
 @NoArgsConstructor
 public class Person {
@@ -24,5 +24,13 @@ public class Person {
 
     private String firstName;
     private String lastName;
+    
+	public static Person of(int id2, String name, String name2) {
+		Person person = new Person();
+		person.setId(id2);
+		person.setFirstName(name);
+		person.setLastName(name2);
+		return person;
+	}
     
 }
