@@ -1,5 +1,0 @@
-rootProject.name = 'springDistributedArchitecture'
-
-include 'gatewayService'
-include 'beService'
-include 'webapp'
