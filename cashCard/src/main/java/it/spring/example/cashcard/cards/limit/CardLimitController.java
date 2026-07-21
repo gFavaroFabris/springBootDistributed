@@ -1,6 +1,5 @@
 package it.spring.example.cashcard.cards.limit;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,10 +11,13 @@ import it.spring.example.cashcard.cards.limit.dto.CardLimitResponse;
  */
 @RestController
 @RequestMapping("/api/v1/cards/{cardId}/limits")
-@RequiredArgsConstructor
 public class CardLimitController {
 
     private final CardLimitService cardLimitService;
+    
+    public CardLimitController(CardLimitService cardLimitService) {
+    	this.cardLimitService = cardLimitService;
+    }
 
     @PostMapping
     public String createCardLimit(@PathVariable Long cardId, @RequestBody CardLimitCreateRequest request, final Model model) {

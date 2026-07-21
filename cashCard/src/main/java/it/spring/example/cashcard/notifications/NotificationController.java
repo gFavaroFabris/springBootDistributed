@@ -1,7 +1,6 @@
 package it.spring.example.cashcard.notifications;
 
 import it.spring.example.cashcard.shared.dto.ApiResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,12 +11,17 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/notifications")
-@RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
+    
+    
 
-    @GetMapping("/customer/{customerId}/unread")
+    public NotificationController(NotificationService notificationService) {
+		this.notificationService = notificationService;
+	}
+
+	@GetMapping("/customer/{customerId}/unread")
     public ResponseEntity<ApiResponse<List<Notification>>> getUnreadNotifications(@PathVariable Long customerId) {
         List<Notification> notifications = notificationService.getUnreadNotifications(customerId);
         return ResponseEntity.ok(ApiResponse.success(notifications, "Notifiche non lette"));

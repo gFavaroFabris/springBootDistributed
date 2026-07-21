@@ -3,7 +3,6 @@ package it.spring.example.cashcard.notifications;
 import it.spring.example.cashcard.shared.events.CardCreatedEvent;
 import it.spring.example.cashcard.shared.events.CustomerRegisteredEvent;
 import it.spring.example.cashcard.shared.events.TransactionCompletedEvent;
-import lombok.RequiredArgsConstructor;
 import org.springframework.modulith.events.ApplicationModuleListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +13,16 @@ import java.time.LocalDateTime;
  * Servizio per le notifiche con event listeners
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    
+    public NotificationService(NotificationRepository notificationRepository) {
+		this.notificationRepository = notificationRepository;
+	}
 
-    /**
+	/**
      * Listener per evento TransactionCompletedEvent
      */
     @ApplicationModuleListener

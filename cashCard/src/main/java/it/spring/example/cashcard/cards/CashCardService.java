@@ -33,6 +33,15 @@ public class CashCardService {
 	public Page<CashCard> getPageableCards(Pageable pageable) {
         return cardRepository.findAll(pageable);
     }
+	
+    /**
+     * Recupera una carta per ID
+     * @throws NotFoundException 
+     */
+    public CashCardResponse getCardById(Long cardId) throws NotFoundException {
+        return cardRepository.findCardResponseById(cardId)
+        		.orElseThrow(NotFoundException::new);
+    }
 
 //    /**
 //     * Crea una nuova carta
@@ -82,15 +91,6 @@ public class CashCardService {
 //        
 //        return modelMapper.map(saved, CardResponse.class);
 //    }
-
-    /**
-     * Recupera una carta per ID
-     * @throws NotFoundException 
-     */
-    public CashCardResponse getCardById(Long cardId) throws NotFoundException {
-        return cardRepository.findCardResponseById(cardId)
-        		.orElseThrow(NotFoundException::new);
-    }
 
 //    /**
 //     * Recupera tutte le carte di un cliente

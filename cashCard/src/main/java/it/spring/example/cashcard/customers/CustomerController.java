@@ -3,7 +3,6 @@ package it.spring.example.cashcard.customers;
 import it.spring.example.cashcard.customers.dto.CustomerCreateRequest;
 import it.spring.example.cashcard.customers.dto.CustomerResponse;
 import it.spring.example.cashcard.shared.dto.ApiResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,10 +15,13 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/api/v1/customers")
-@RequiredArgsConstructor
 public class CustomerController {
 
     private final CustomerService customerService;
+    
+    public CustomerController(CustomerService customerService) {
+    	this.customerService = customerService;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<CustomerResponse>> createCustomer(@RequestBody CustomerCreateRequest request) {

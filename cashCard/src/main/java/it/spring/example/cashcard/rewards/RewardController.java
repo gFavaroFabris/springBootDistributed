@@ -1,9 +1,6 @@
 package it.spring.example.cashcard.rewards;
 
 import it.spring.example.cashcard.rewards.dto.RewardProgramResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,12 +11,15 @@ import java.math.BigDecimal;
  */
 @RestController
 @RequestMapping("/api/v1/rewards")
-@RequiredArgsConstructor
 public class RewardController {
 
     private final RewardService rewardService;
 
-    @PostMapping("/enroll/{customerId}")
+    public RewardController(RewardService rewardService) {
+		this.rewardService = rewardService;
+	}
+
+	@PostMapping("/enroll/{customerId}")
     public String enrollCustomer(@PathVariable Long customerId, final Model model) {
         RewardProgramResponse response = rewardService.enrollCustomerInRewardProgram(customerId);
 //        return ResponseEntity.status(HttpStatus.CREATED)

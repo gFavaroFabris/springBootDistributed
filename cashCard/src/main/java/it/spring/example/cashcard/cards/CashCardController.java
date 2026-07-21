@@ -1,14 +1,14 @@
 package it.spring.example.cashcard.cards;
 
-import lombok.RequiredArgsConstructor;
-
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import it.spring.example.cashcard.cards.dto.CashCardResponse;
+import jakarta.websocket.server.PathParam;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
  * Controller per la gestione delle carte bancarie
  */
 @Controller
-@RequestMapping("/api/v1/cards")
+@RequestMapping("/cards")
 public class CashCardController {
 
     private final CashCardService cashCardService;
@@ -25,12 +25,20 @@ public class CashCardController {
     	this.cashCardService = cashCardService;
     }
     
-    @GetMapping("/{cardId}")
-    public String getAllCard(@ModelAttribute Pageable pageable, final Model model) {
+    @GetMapping("")
+    public String getAllCard(Pageable pageable, final Model model) {
         Page<CashCard> cards = cashCardService.getPageableCards(pageable);
         // return ResponseEntity.ok(ApiResponse.success(response, "Carta recuperata"));
         model.addAttribute("cards", cards);
-        return "cards";
+        return "cards/list";
+    }
+    
+    @GetMapping("/{cardId}")
+    public String getCard(@PathVariable Long cardId, final Model model) throws NotFoundException {
+        CashCardResponse cards = cashCardService.getCardById(cardId);
+        // return ResponseEntity.ok(ApiResponse.success(response, "Carta recuperata"));
+        model.addAttribute("cards", cards);
+        return "cards/detail";
     }
     
 //    @PostMapping

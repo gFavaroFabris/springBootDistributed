@@ -1,10 +1,4 @@
-<!DOCTYPE HTML>
-<html>
-<head> 
-    <title>Getting Started: Serving Web Content</title> 
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-</head>
-<body>
-    <p>Get your cards <a href="/cards">here</a></p>
-</body>
-</html>
+<div xmlns:th="http://www.thymeleaf.org" th:fragment="content">
+    <h1>Benvenuto in CashCard</h1>
+    <p>Vai alle tue <a th:href="@{/cards}">carte</a></p>
+</div>

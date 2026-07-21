@@ -6,7 +6,6 @@ import it.spring.example.cashcard.rewards.repository.RewardMovementRepository;
 import it.spring.example.cashcard.rewards.repository.RewardProgramRepository;
 import it.spring.example.cashcard.shared.exception.BusinessException;
 import it.spring.example.cashcard.shared.exception.ResourceNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,6 @@ import java.time.LocalDate;
  * Servizio per la gestione dei programmi di rewards
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class RewardService {
 
@@ -26,8 +24,17 @@ public class RewardService {
     private final RewardMovementRepository rewardMovementRepository;
     private final CustomerService customerService;
     private final ModelMapper modelMapper;
+    
+    public RewardService(RewardProgramRepository rewardProgramRepository,
+			RewardMovementRepository rewardMovementRepository, CustomerService customerService,
+			ModelMapper modelMapper) {
+		this.rewardProgramRepository = rewardProgramRepository;
+		this.rewardMovementRepository = rewardMovementRepository;
+		this.customerService = customerService;
+		this.modelMapper = modelMapper;
+	}
 
-    /**
+	/**
      * Crea un nuovo programma di rewards per un cliente
      */
     public RewardProgramResponse enrollCustomerInRewardProgram(Long customerId) {

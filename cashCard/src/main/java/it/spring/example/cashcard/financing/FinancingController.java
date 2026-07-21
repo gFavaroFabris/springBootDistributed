@@ -3,7 +3,6 @@ package it.spring.example.cashcard.financing;
 import it.spring.example.cashcard.financing.dto.FinancingPlanCreateRequest;
 import it.spring.example.cashcard.financing.dto.FinancingPlanResponse;
 import it.spring.example.cashcard.shared.dto.ApiResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,10 +15,13 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/api/v1/financing")
-@RequiredArgsConstructor
 public class FinancingController {
 
     private final FinancingService financingService;
+    
+    public FinancingController(FinancingService financingService) {
+    	this.financingService = financingService;
+    }
 
     @PostMapping
     public ResponseEntity<ApiResponse<FinancingPlanResponse>> createFinancingPlan(

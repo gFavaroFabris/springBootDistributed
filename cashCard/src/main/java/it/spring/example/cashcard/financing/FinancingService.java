@@ -6,7 +6,6 @@ import it.spring.example.cashcard.financing.dto.FinancingPlanCreateRequest;
 import it.spring.example.cashcard.financing.dto.FinancingPlanResponse;
 import it.spring.example.cashcard.shared.exception.BusinessException;
 import it.spring.example.cashcard.shared.exception.ResourceNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +20,6 @@ import java.util.stream.Collectors;
  * Servizio per la gestione dei finanziamenti
  */
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class FinancingService {
 
@@ -31,8 +28,20 @@ public class FinancingService {
     private final CashCardService cardService;
     private final CustomerService customerService;
     private final ModelMapper modelMapper;
+    
+    
 
-    /**
+    public FinancingService(FinancingPlanRepository financingPlanRepository,
+			InstallmentRepository installmentRepository, CashCardService cardService, CustomerService customerService,
+			ModelMapper modelMapper) {
+		this.financingPlanRepository = financingPlanRepository;
+		this.installmentRepository = installmentRepository;
+		this.cardService = cardService;
+		this.customerService = customerService;
+		this.modelMapper = modelMapper;
+	}
+
+	/**
      * Crea un nuovo piano di finanziamento
      */
     public FinancingPlanResponse createFinancingPlan(FinancingPlanCreateRequest request) {
