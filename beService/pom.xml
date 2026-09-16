@@ -6,11 +6,15 @@
 	<artifactId>beService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+	<properties>
+		<lombok.version>1.18.40</lombok.version>
+	</properties>
+
 	<parent>
 		<groupId>it.gff.learn.structures</groupId>
 		<artifactId>springDistributedArchitecture</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath></relativePath>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<dependencyManagement>
@@ -19,7 +23,7 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-dependencies</artifactId>
-				<version>3.4.2</version> <!-- Match this to your desired Boot
+				<version>3.5.16</version> <!-- Match this to your desired Boot
 				version -->
 				<type>pom</type>
 				<scope>import</scope>
@@ -37,6 +41,7 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>${lombok.version}</version>
 			<optional>true</optional>
 		</dependency>
 
@@ -53,6 +58,11 @@
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-commons</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		
 				<!-- test  -->
 		<dependency>
@@ -68,7 +78,14 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.13.0</version>
 				<configuration>
-					<release>21</release>
+					<release>25</release>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
 		</plugins>

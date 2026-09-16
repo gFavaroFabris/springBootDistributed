@@ -4,6 +4,7 @@ package it.gff.learn.structures.gatewayservice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
@@ -43,12 +44,11 @@ public class BaseGateway {
 
 	@Bean
 	SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) throws Exception {
-		return http.httpBasic().and()
-				.csrf().disable()
-				.authorizeExchange()
-				.pathMatchers("/anything/**").authenticated()
-				.anyExchange().permitAll()
-				.and()
+		return http.httpBasic(Customizer.withDefaults())
+				.csrf(csrf -> csrf.disable())
+				.authorizeExchange(exchange -> exchange
+						.pathMatchers("/anything/**").authenticated()
+						.anyExchange().permitAll())
 				.build();
 	}
 
