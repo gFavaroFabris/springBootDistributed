@@ -1,17 +1,14 @@
-WORKDIR /app
+FROM maven:3.9.16-eclipse-temurin-25 AS build
+WORKDIR /workspace
 
-COPY build.gradle settings.gradle ./
+COPY pom.xml .
 COPY src ./src
-RUN gradle bootJar --no-daemon
+RUN mvn -B -DskipTests package
 
-# --- Fase 2: Run ---
-FROM eclipse-temurin:17-jre-alpine
-
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
 
-# Espone la porta standard di Spring Boot
+COPY --from=build /workspace/target/*.jar /app/app.jar
+
 EXPOSE 8080
-
-# Comando di avvio
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

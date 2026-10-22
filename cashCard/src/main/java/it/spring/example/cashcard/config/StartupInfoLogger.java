@@ -31,7 +31,7 @@ public class StartupInfoLogger {
             log.info(" Version      : {}", buildProperties.getVersion());
             log.info(" Build Time   : {}", buildProperties.getTime());
         } else {
-            log.info(" Build Info   : Not available (run maven/gradle build)");
+            log.info(" Build Info   : Not available (run a Maven build)");
         }
 
         if (gitProperties != null) {

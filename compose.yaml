@@ -86,8 +86,8 @@ services:
   beservice:
     image: springbootdistributed-beservice
     build:
-      context: ./beService
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: beService/Dockerfile
     restart: always
     ports:
       - "8082:8082"

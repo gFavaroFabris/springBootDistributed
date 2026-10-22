@@ -1,14 +1,14 @@
-FROM gradle:8.11-jdk21 AS build
+FROM maven:3.9.16-eclipse-temurin-25 AS build
 WORKDIR /workspace
 
-COPY build.gradle settings.gradle ./
+COPY pom.xml .
 COPY src ./src
-RUN gradle :bootJar --no-daemon
+RUN mvn -B -DskipTests package
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-COPY --from=build /workspace/build/libs/*.jar /app/app.jar
+COPY --from=build /workspace/target/*.jar /app/app.jar
 
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
