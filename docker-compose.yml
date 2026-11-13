@@ -6,25 +6,22 @@ services:
       dockerfile: Dockerfile
 
   kafka:
-    image: bitnami/kafka:latest
+    image: apache/kafka:latest
+    container_name: kafka
     ports:
       - "9092:9092"
     environment:
-      #A unique ID for the node. In a local setup, this is always
-      - KAFKA_CFG_NODE_ID=1
-      #Tells this container to act as both the database for messages and the manager of the cluster.
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      #Tells Kafka which ports to listen on.
-      # 9092 is for your Spring app;
-      # 9093 is for internal KRaft communication
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      #What it does: Crucial. This is the address Kafka sends back to your Spring app.
-      #If your app is running on your host machine, it must be localhost:9092.
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      #Needed for the "Self-Management" (KRaft).
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
-      #What it does: Maps the names we invented (like CONTROLLER) to a security protocol (plain text, no SSL).
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://localhost:9092'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:9093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       
   bankDb:
     image: postgres:15-alpine
